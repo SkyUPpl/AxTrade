@@ -180,12 +180,14 @@ public class Trade {
                 }
 
                 List<String> player1Items = new ArrayList<>();
+                List<String> player1ItemsLog = new ArrayList<>();
                 player1.getTradeGui().getItems(false).forEach(itemStack -> {
                     if (itemStack == null) return;
                     addOrDrop(player2.getPlayer().getInventory(), List.of(itemStack), player2.getPlayer().getLocation());
                     final String itemName = Utils.getFormattedItemName(itemStack);
                     int itemAm = itemStack.getAmount();
                     player1Items.add(itemAm + "x " + itemName);
+                    player1ItemsLog.add(itemAm + "x " + itemName + " ["+ itemStack.toString() +"]");
                     if (CONFIG.getBoolean("enable-trade-summaries")) {
                         MESSAGEUTILS.sendFormatted(player1.getPlayer(), LANG.getString("summary.give.item"), Map.of("%amount%", "" + itemAm, "%item%", itemName));
                         MESSAGEUTILS.sendFormatted(player2.getPlayer(), LANG.getString("summary.get.item"), Map.of("%amount%", "" + itemAm, "%item%", itemName));
@@ -193,12 +195,14 @@ public class Trade {
                 });
 
                 List<String> player2Items = new ArrayList<>();
+                List<String> player2ItemsLog = new ArrayList<>();
                 player2.getTradeGui().getItems(false).forEach(itemStack -> {
                     if (itemStack == null) return;
                     addOrDrop(player1.getPlayer().getInventory(), List.of(itemStack), player1.getPlayer().getLocation());
                     final String itemName = Utils.getFormattedItemName(itemStack);
                     int itemAm = itemStack.getAmount();
                     player2Items.add(itemAm + "x " + itemName);
+                    player2ItemsLog.add(itemAm + "x " + itemName + " ["+ itemStack.toString() +"]");
                     if (CONFIG.getBoolean("enable-trade-summaries")) {
                         MESSAGEUTILS.sendFormatted(player2.getPlayer(), LANG.getString("summary.give.item"), Map.of("%amount%", "" + itemAm, "%item%", itemName));
                         MESSAGEUTILS.sendFormatted(player1.getPlayer(), LANG.getString("summary.get.item"), Map.of("%amount%", "" + itemAm, "%item%", itemName));
@@ -207,7 +211,12 @@ public class Trade {
 
                 HistoryUtils.writeToHistory(
                         String.format("%s: [Currencies: %s] [Items: %s] | %s: [Currencies: %s] [Items: %s]",
-                                player1.getPlayer().getName(), player1Currencies.isEmpty() ? "---" : String.join(", ", player1Currencies), player1Items.isEmpty() ? "---" : String.join(", ", player1Items), player2.getPlayer().getName(), player2Currencies.isEmpty() ? "---" : String.join(", ", player2Currencies), player2Items.isEmpty() ? "---" : String.join(", ", player2Items)));
+                                player1.getPlayer().getName(), 
+                                player1Currencies.isEmpty() ? "---" : String.join(", ", player1Currencies), 
+                                player1Items.isEmpty() ? "---" : String.join(", ", player1ItemsLog),
+                                player2.getPlayer().getName(),
+                                player2Currencies.isEmpty() ? "---" : String.join(", ", player2Currencies),
+                                player2Items.isEmpty() ? "---" : String.join(", ", player2ItemsLog)));
             });
         });
     }
