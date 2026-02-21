@@ -12,6 +12,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -61,7 +62,23 @@ public class GuiFrame {
         map.put("%own-name%", player.getPlayer().getName());
         map.put("%partner-name%", trade.getOtherPlayer(player).getPlayer().getName());
 
-        return ItemBuilderUtil.newBuilder(file.getSection(key), map, player).get();
+        ItemStack is = ItemBuilderUtil.newBuilder(file.getSection(key), map, player).get();
+        
+        if (file.getSection(key).contains("custom-model-data")) {
+        	int cmd = file.getSection(key).getInt("custom-model-data");
+        	ItemMeta meta = is.getItemMeta();
+        	meta.setCustomModelData(cmd);
+        	is.setItemMeta(meta);
+        }
+        
+        if (file.getSection(key).contains("hide-tooltip")) {
+        	boolean hidetooltip = file.getSection(key).getBoolean("hide-tooltip");
+        	ItemMeta meta = is.getItemMeta();
+        	meta.setHideTooltip(hidetooltip);
+        	is.setItemMeta(meta);
+        }
+        
+        return is;
     }
 
     protected void createItem(@NotNull String route) {
