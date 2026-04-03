@@ -183,9 +183,9 @@ public class Trade {
                 List<String> player1ItemsLog = new ArrayList<>();
                 player1.getTradeGui().getItems(false).forEach(itemStack -> {
                     if (itemStack == null) return;
+                    int itemAm = itemStack.getAmount();
                     addOrDrop(player2.getPlayer().getInventory(), List.of(itemStack), player2.getPlayer().getLocation());
                     final String itemName = Utils.getFormattedItemName(itemStack);
-                    int itemAm = itemStack.getAmount();
                     player1Items.add(itemAm + "x " + itemName);
                     player1ItemsLog.add(itemAm + "x " + itemName + " ["+ itemStack.toString() +"]");
                     if (CONFIG.getBoolean("enable-trade-summaries")) {
@@ -198,9 +198,9 @@ public class Trade {
                 List<String> player2ItemsLog = new ArrayList<>();
                 player2.getTradeGui().getItems(false).forEach(itemStack -> {
                     if (itemStack == null) return;
+                    int itemAm = itemStack.getAmount();
                     addOrDrop(player1.getPlayer().getInventory(), List.of(itemStack), player1.getPlayer().getLocation());
                     final String itemName = Utils.getFormattedItemName(itemStack);
-                    int itemAm = itemStack.getAmount();
                     player2Items.add(itemAm + "x " + itemName);
                     player2ItemsLog.add(itemAm + "x " + itemName + " ["+ itemStack.toString() +"]");
                     if (CONFIG.getBoolean("enable-trade-summaries")) {
