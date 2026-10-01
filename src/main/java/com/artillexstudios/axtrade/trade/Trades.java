@@ -1,5 +1,6 @@
 package com.artillexstudios.axtrade.trade;
 
+import com.artillexstudios.axapi.utils.PaperUtils;
 import com.artillexstudios.axtrade.utils.SoundUtils;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
@@ -36,9 +37,11 @@ public class Trades {
 
     @Nullable
     public static Trade getTrade(Player player) {
-        for (Trade trade : trades) {
-            if (trade.player1.getPlayer().equals(player) || trade.player2.getPlayer().equals(player)) {
-                return trade;
+        synchronized (trades) {
+            for (Trade trade : trades) {
+                if (trade.player1.getPlayer().equals(player) || trade.player2.getPlayer().equals(player)) {
+                    return trade;
+                }
             }
         }
         return null;
