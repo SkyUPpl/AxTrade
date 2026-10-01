@@ -43,8 +43,8 @@ public class Trade {
     }
 
     public void update() {
-        if (player1.getTradeGui() != null) player1.getTradeGui().update();
-        if (player2.getTradeGui() != null) player2.getTradeGui().update();
+    	if (player1.getTradeGui() != null) player1.getTradeGui().update();
+    	if (player2.getTradeGui() != null) player2.getTradeGui().update();
     }
 
     // the CompletableFuture is needed here to make sure that on folia the players' inventory are closed before processing to avoid race conditions
@@ -91,15 +91,11 @@ public class Trade {
         Bukkit.getPluginManager().callEvent(event);
 
         end().thenRun(() -> {
-            if (player1.getTradeGui() != null) {
-                player1.getTradeGui().getItems(false).forEach(itemStack -> {
-                if (itemStack == null) return;
-                addOrDrop(player1.getPlayer().getInventory(), List.of(itemStack), player1.getPlayer().getLocation());
-            });
-                if (itemStack == null) return;
-                addOrDrop(player1.getPlayer().getInventory(), List.of(itemStack), player1.getPlayer().getLocation());
-            });
-            }
+        	if (player1.getTradeGui() != null)
+	            player1.getTradeGui().getItems(false).forEach(itemStack -> {
+	                if (itemStack == null) return;
+	                addOrDrop(player1.getPlayer().getInventory(), List.of(itemStack), player1.getPlayer().getLocation());
+	            });
             if (player2.getTradeGui() != null) {
                 player2.getTradeGui().getItems(false).forEach(itemStack -> {
                     if (itemStack == null) return;
@@ -208,12 +204,14 @@ public class Trade {
                     }
 
                     List<String> player1Items = new ArrayList<>();
+                    List<String> player1ItemsLog = new ArrayList<>();
                     player1.getTradeGui().getItems(false).forEach(itemStack -> {
                         if (itemStack == null) return;
                         String itemName = Utils.getFormattedItemName(itemStack);
                         int itemAm = itemStack.getAmount();
                         addOrDrop(player2.getPlayer().getInventory(), List.of(itemStack), player2.getPlayer().getLocation());
                         player1Items.add(itemAm + "x " + itemName);
+                        player1ItemsLog.add(itemAm + "x " + itemName + " ["+ itemStack.toString() +"]");
                         if (CONFIG.getBoolean("enable-trade-summaries")) {
                             MESSAGEUTILS.sendFormatted(player1.getPlayer(), LANG.getString("summary.give.item"), Map.of("%amount%", "" + itemAm, "%item%", itemName));
                             MESSAGEUTILS.sendFormatted(player2.getPlayer(), LANG.getString("summary.get.item"), Map.of("%amount%", "" + itemAm, "%item%", itemName));
@@ -221,12 +219,14 @@ public class Trade {
                     });
 
                     List<String> player2Items = new ArrayList<>();
+                    List<String> player2ItemsLog = new ArrayList<>();
                     player2.getTradeGui().getItems(false).forEach(itemStack -> {
                         if (itemStack == null) return;
                         String itemName = Utils.getFormattedItemName(itemStack);
                         int itemAm = itemStack.getAmount();
                         addOrDrop(player1.getPlayer().getInventory(), List.of(itemStack), player1.getPlayer().getLocation());
                         player2Items.add(itemAm + "x " + itemName);
+                        player2ItemsLog.add(itemAm + "x " + itemName + " ["+ itemStack.toString() +"]");
                         if (CONFIG.getBoolean("enable-trade-summaries")) {
                             MESSAGEUTILS.sendFormatted(player2.getPlayer(), LANG.getString("summary.give.item"), Map.of("%amount%", "" + itemAm, "%item%", itemName));
                             MESSAGEUTILS.sendFormatted(player1.getPlayer(), LANG.getString("summary.get.item"), Map.of("%amount%", "" + itemAm, "%item%", itemName));
@@ -237,10 +237,10 @@ public class Trade {
                             String.format("%s: [Currencies: %s] [Items: %s] | %s: [Currencies: %s] [Items: %s]",
                                     player1.getPlayer().getName(),
                                     player1Currencies.isEmpty() ? "---" : String.join(", ", player1Currencies),
-                                    player1Items.isEmpty() ? "---" : String.join(", ", player1Items),
+                                    player1Items.isEmpty() ? "---" : String.join(", ", player1ItemsLog),
                                     player2.getPlayer().getName(),
                                     player2Currencies.isEmpty() ? "---" : String.join(", ", player2Currencies),
-                                    player2Items.isEmpty() ? "---" : String.join(", ", player2Items)
+                                    player2Items.isEmpty() ? "---" : String.join(", ", player2ItemsLog)
                             )
                     );
 
@@ -251,33 +251,6 @@ public class Trade {
                     throwable.printStackTrace();
                     return null;
                 });
-                List<String> player2Items = new ArrayList<>();
-                List<String> player2ItemsLog = new ArrayList<>();
-                player2.getTradeGui().getItems(false).forEach(itemStack -> {
-                    if (itemStack == null) return;
-                    int itemAm = itemStack.getAmount();
-                    addOrDrop(player1.getPlayer().getInventory(), List.of(itemStack), player1.getPlayer().getLocation());
-                    final String itemName = Utils.getFormattedItemName(itemStack);
-                    player2Items.add(itemAm + "x " + itemName);
-                    player2ItemsLog.add(itemAm + "x " + itemName + " [" + itemStack.toString() + "]");
-                    if (CONFIG.getBoolean("enable-trade-summaries")) {
-                        MESSAGEUTILS.sendFormatted(player2.getPlayer(), LANG.getString("summary.give.item"), Map.of("%amount%", "" + itemAm, "%item%", itemName));
-                        MESSAGEUTILS.sendFormatted(player1.getPlayer(), LANG.getString("summary.get.item"), Map.of("%amount%", "" + itemAm, "%item%", itemName));
-                    }
-                });
-
-                HistoryUtils.writeToHistory(
-                        String.format("%s: [Currencies: %s] [Items: %s] | %s: [Currencies: %s] [Items: %s]",
-                                player1.getPlayer().getName(),
-                                player1Currencies.isEmpty() ? "---" : String.join(", ", player1Currencies),
-                                player1Items.isEmpty() ? "---" : String.join(", ", player1ItemsLog),
-                                player2.getPlayer().getName(),
-                                player2Currencies.isEmpty() ? "---" : String.join(", ", player2Currencies),
-                                player2Items.isEmpty() ? "---" : String.join(", ", player2ItemsLog)
-                        )
-                );
-
-                Scheduler.get().run(scheduledTask -> Trades.removeTrade(this));
             }).exceptionally(throwable -> {
                 throwable.printStackTrace();
                 return null;
